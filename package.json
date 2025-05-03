@@ -1,0 +1,15 @@
+{
+  "name": "chatbot",
+  "description": "Chatbot integrado com API oficial do WhatsApp e OpenAI",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "node src/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "fastify": "^5.3.2"
+  }
+}
