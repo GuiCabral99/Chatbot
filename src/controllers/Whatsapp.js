@@ -1,11 +1,16 @@
 module.exports = class Whatsapp {
   constructor() {
-    this.apiUrl = `${process.env.WHATSAPP_API_URL}/${process.env.PHONE_NUMBER_ID}/messages`;
+    this.apiUrl = `${process.env.WHATSAPP_API_URL}/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
     this.token = process.env.WHATSAPP_TOKEN;
-    this.verifyToken = process.env.VERIFY_TOKEN;
+    this.verifyToken = process.env.WHATSAPP_VERIFY_TOKEN;
+
+    this.openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
   }
 
-  verify(request, reply) {
+  async verify(request, reply) {
+    console.log("Rota de verificação chamada!");
     const {
       "hub.mode": mode,
       "hub.verify_token": token,
@@ -28,15 +33,20 @@ module.exports = class Whatsapp {
 
     if (from && text) {
       await this.sendTextMessage(from, `Recebemos sua mensagem: "${text}"`);
-      console.log("Mensagem recebida e respondida com sucesso");
       return reply.status(200).send();
     }
 
     console.log("Mensagem recebida mas não processada (formato inválido)");
-    return reply.status(200).send(); // Sempre retorne 200 para evitar reenvios pela Meta
+    return reply.status(200).send();
   }
 
   async sendTextMessage(to, text) {
+    if ((!to, !text)) {
+      console.log(
+        "O metodo sendTextMessage nao recebeu o destinatário e a mensagem."
+      );
+    }
+
     try {
       const response = await fetch(this.apiUrl, {
         method: "POST",
@@ -52,13 +62,7 @@ module.exports = class Whatsapp {
         }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error("Erro na API do WhatsApp:", data);
-      } else {
-        console.log("Mensagem enviada com sucesso:", data);
-      }
+      await response.json();
     } catch (err) {
       console.error("Erro ao enviar mensagem:", err.message);
     }
